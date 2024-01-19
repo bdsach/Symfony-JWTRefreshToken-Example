@@ -10,17 +10,17 @@ security:
                 class: App\Entity\User
                 property: email
     firewalls:
-        jwt_auth:
-            pattern: ^/auth
-            stateless: true
-            json_login:
-                check_path: jwt_auth
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
         api:
             pattern: ^/api
             stateless: true
+            json_login:
+                check_path: api_login
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
             jwt: ~
+            entry_point: jwt
+            refresh_jwt:
+                check_path: api_refresh_token
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
