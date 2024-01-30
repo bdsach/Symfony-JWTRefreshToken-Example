@@ -40,4 +40,37 @@ class RegistrationController extends AbstractController
             'registrationForm' => $form->createView(),
         ]);
     }
+
+    #[Route('/api/register', name: 'app_api_register')]
+    public function apiRegister(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
+    {
+        $requestData = json_decode($request->getContent(), true);
+        $email = $requestData['email'];
+        $password = $requestData['password'];
+
+        $user = new User();
+
+        $user->setEmail($email);
+        $user->setPassword(
+            $userPasswordHasher->hashPassword(
+                $user,
+                $password
+            )
+        );
+
+        if (!$user) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Error while creating user'
+            ]);
+        }
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'User created successfully'
+        ], 201);
+    }
 }
