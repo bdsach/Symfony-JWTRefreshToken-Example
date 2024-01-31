@@ -47,6 +47,25 @@ class RegistrationController extends AbstractController
         $requestData = json_decode($request->getContent(), true);
         $email = $requestData['email'];
         $password = $requestData['password'];
+        $confirmPassword = $requestData['confirm_password'];
+
+        $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        
+        // check if user already exists
+        if ($user) {
+            return $this->json([
+                'success' => false,
+                'message' => 'User already exists'
+            ], 409);
+        }
+
+        // check if passwords and confirm passwords match
+        if ($password != $confirmPassword) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Passwords do not match'
+            ], 400);
+        }
 
         $user = new User();
 
